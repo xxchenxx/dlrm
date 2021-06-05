@@ -1578,7 +1578,7 @@ def run():
                         E.backward()
 
                         for name, p in dlrm.named_parameters():
-                            writer.add_scalar(f"Train/{name}", p.grad.data.values().mean(), log_iter)
+                            writer.add_scalar(f"Train/{name}", p.grad.data.coalesce().values().mean(), log_iter)
 
                         # optimizer
                         if (args.mlperf_logging and (j + 1) % args.mlperf_grad_accum_iter == 0) or not args.mlperf_logging:
