@@ -1190,6 +1190,15 @@ if __name__ == "__main__":
     parser.add_argument("--caffe2-net-type", type=str, default="")
     parser.add_argument("--optimizer", type=str, default="sgd",
         help="""This is the optimizer for embedding tables.""")
+    parser.add_argument(
+        "--dataset-multiprocessing",
+        action="store_true",
+        default=False,
+        help="The Kaggle dataset can be multiprocessed in an environment \
+                        with more than 7 CPU cores and more than 20 GB of memory. \n \
+                        The Terabyte dataset can be multiprocessed in an environment \
+                        with more than 24 CPU cores and at least 1 TB of memory.",
+    )
     # inference
     parser.add_argument("--inference-only", action="store_true", default=False)
     # onnx (or protobuf with shapes)
