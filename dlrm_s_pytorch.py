@@ -1576,12 +1576,13 @@ def run():
                             optimizer.zero_grad()
                         # backward pass
                         E.backward()
-                        log_iter = nbatches * k + j + 1
-                        for name, p in dlrm.named_parameters():
-                            try:
-                                writer.add_scalar(f"Train/{name}", p.grad.data.coalesce().values().mean(), log_iter)
-                            except RuntimeError:
-                                writer.add_scalar(f"Train/{name}", p.grad.data.mean(), log_iter)
+                        if should_print:
+                            log_iter = nbatches * k + j + 1
+                            for name, p in dlrm.named_parameters():
+                                try:
+                                    writer.add_scalar(f"Train/{name}", p.grad.data.coalesce().values().mean(), log_iter)
+                                except RuntimeError:
+                                    writer.add_scalar(f"Train/{name}", p.grad.data.mean(), log_iter)
 
 
                         # optimizer
