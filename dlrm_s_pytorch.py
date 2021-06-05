@@ -1576,7 +1576,7 @@ def run():
                             optimizer.zero_grad()
                         # backward pass
                         E.backward()
-
+                        log_iter = nbatches * k + j + 1
                         for name, p in dlrm.named_parameters():
                             writer.add_scalar(f"Train/{name}", p.grad.data.coalesce().values().mean(), log_iter)
 
