@@ -1576,7 +1576,7 @@ def run():
                             optimizer.zero_grad()
                         # backward pass
                         E.backward()
-                        if should_print:
+                        if True:
                             log_iter = nbatches * k + j + 1
                             for name, p in dlrm.named_parameters():
                                 try:
