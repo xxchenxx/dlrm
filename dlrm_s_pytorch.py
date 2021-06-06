@@ -203,30 +203,44 @@ class DLRM_Net(nn.Module):
             # construct fully connected operator
             LL = nn.Linear(int(n), int(m), bias=True)
 
-            # initialize the weights
-            # with torch.no_grad():
-            # custom Xavier input, output or two-sided fill
-            mean = 0.0  # std_dev = np.sqrt(variance)
-            std_dev = np.sqrt(2 / (m + n))  # np.sqrt(1 / m) # np.sqrt(1 / n)
-            W = np.random.normal(mean, std_dev, size=(m, n)).astype(np.float32)
-            std_dev = np.sqrt(1 / m)  # np.sqrt(2 / (m + 1))
-            bt = np.random.normal(mean, std_dev, size=m).astype(np.float32)
-            # approach 1
-            LL.weight.data = torch.tensor(W, requires_grad=True)
-            LL.bias.data = torch.tensor(bt, requires_grad=True)
-            # approach 2
-            # LL.weight.data.copy_(torch.tensor(W))
-            # LL.bias.data.copy_(torch.tensor(bt))
-            # approach 3
-            # LL.weight = Parameter(torch.tensor(W),requires_grad=True)
-            # LL.bias = Parameter(torch.tensor(bt),requires_grad=True)
-            layers.append(LL)
+            if n >= m:
+                # initialize the weights
+                # with torch.no_grad():
+                # custom Xavier input, output or two-sided fill
+                mean = 0.0  # std_dev = np.sqrt(variance)
+                std_dev = np.sqrt(2 / (m + n))  # np.sqrt(1 / m) # np.sqrt(1 / n)
+                W = np.random.normal(mean, std_dev, size=(m, n)).astype(np.float32)
+                std_dev = np.sqrt(1 / m)  # np.sqrt(2 / (m + 1))
+                bt = np.random.normal(mean, std_dev, size=m).astype(np.float32)
+                # approach 1
+                LL.weight.data = torch.tensor(W, requires_grad=True)
+                LL.bias.data = torch.tensor(bt, requires_grad=True)
+                # approach 2
+                # LL.weight.data.copy_(torch.tensor(W))
+                # LL.bias.data.copy_(torch.tensor(bt))
+                # approach 3
+                # LL.weight = Parameter(torch.tensor(W),requires_grad=True)
+                # LL.bias = Parameter(torch.tensor(bt),requires_grad=True)
+                layers.append(LL)
 
-            # construct sigmoid or relu operator
-            if i == sigmoid_layer:
-                layers.append(nn.Sigmoid())
+                # construct sigmoid or relu operator
+                if i == sigmoid_layer:
+                    layers.append(nn.Sigmoid())
+                else:
+                    layers.append(nn.ReLU())
             else:
-                layers.append(nn.ReLU())
+
+                a = torch.randn((int(n), int(n))).numpy()
+                # Compute the qr factorization
+                q, r = np.linalg.qr(a, mode="complete")
+                # Make Q uniform
+                d = np.diag(r)
+                # ph = d / math_ops.abs(d)
+                q *= np.sign(d)
+                q = q[:int(m), :]
+                LL.weight.data = torch.scatter(torch.from_numpy(np.expand_dims(q, 2)), [[[(int(m)-1)//2]]], torch.zeros(( int(m), int(n) )))
+                LL.weight.data = array_ops.scatter_nd([[]],
+                                                array_ops.expand_dims(q, 0), shape)
 
         # approach 1: use ModuleList
         # return layers
