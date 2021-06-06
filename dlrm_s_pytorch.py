@@ -238,7 +238,7 @@ class DLRM_Net(nn.Module):
                 # ph = d / math_ops.abs(d)
                 q *= np.sign(d)
                 q = q[:int(m), :]
-                LL.weight.data = torch.scatter(torch.from_numpy(np.expand_dims(q, 2)), 2, [[[(int(m)-1)//2]]], torch.zeros(( int(m), int(n) )))
+                LL.weight.data = torch.scatter(torch.from_numpy(np.expand_dims(q, 2)), 2, torch.Tensor([[[(int(m)-1)//2]]]), torch.zeros(( int(m), int(n) )))
                 #LL.weight.data = array_ops.scatter_nd([[]],
                 #                                array_ops.expand_dims(q, 0), shape)
                 mean = 0.0  # std_dev = np.sqrt(variance)
