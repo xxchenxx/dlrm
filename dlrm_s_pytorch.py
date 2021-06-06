@@ -221,13 +221,6 @@ class DLRM_Net(nn.Module):
                 # approach 3
                 # LL.weight = Parameter(torch.tensor(W),requires_grad=True)
                 # LL.bias = Parameter(torch.tensor(bt),requires_grad=True)
-                layers.append(LL)
-
-                # construct sigmoid or relu operator
-                if i == sigmoid_layer:
-                    layers.append(nn.Sigmoid())
-                else:
-                    layers.append(nn.ReLU())
             else:
 
                 a = torch.randn((int(n), int(n))).numpy()
@@ -248,6 +241,11 @@ class DLRM_Net(nn.Module):
                 bt = np.random.normal(mean, std_dev, size=m).astype(np.float32)
                 # approach 1
                 LL.bias.data = torch.tensor(bt, requires_grad=True)
+            layers.append(LL)
+            if i == sigmoid_layer:
+                layers.append(nn.Sigmoid())
+            else:
+                layers.append(nn.ReLU())
 
         # approach 1: use ModuleList
         # return layers
