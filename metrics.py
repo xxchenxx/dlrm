@@ -5,7 +5,7 @@ from dlrm_s_pytorch import unpack_batch
 
 def get_ntk_n(xloader, network, train_mode=False, num_batch=5, use_gpu=True, ndevices=1):
     device = torch.cuda.current_device()
-    network.eval()
+    #network.eval()
     ######
     grads = []
     for i, inputBatch in enumerate(xloader):
