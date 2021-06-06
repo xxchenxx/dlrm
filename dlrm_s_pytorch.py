@@ -1640,7 +1640,7 @@ def run():
                         total_iter = 0
                         total_samp = 0
                         from metrics import get_ntk_n
-                        ntk = get_ntk_n(train_ld, dlrm_wrap, False, num_batch=5, use_gpu=use_gpu, ndevices=ndevices)
+                        ntk = get_ntk_n(dlrm, train_ld, dlrm_wrap, False, num_batch=5, use_gpu=use_gpu, ndevices=ndevices)
                         writer.add_histogram_raw("Train/ntk", ntk, log_iter)
 
                     # testing

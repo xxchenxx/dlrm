@@ -3,7 +3,7 @@ import torch
 
 from dlrm_s_pytorch import unpack_batch
 
-def get_ntk_n(xloader, network, train_mode=False, num_batch=5, use_gpu=True, ndevices=1):
+def get_ntk_n(dlrm, xloader, network, train_mode=False, num_batch=5, use_gpu=True, ndevices=1):
     device = torch.cuda.current_device()
     #network.eval()
     ######
@@ -11,7 +11,7 @@ def get_ntk_n(xloader, network, train_mode=False, num_batch=5, use_gpu=True, nde
     for i, inputBatch in enumerate(xloader):
         if num_batch > 0 and i >= num_batch: break
         X, lS_o, lS_i, T, W, CBPP = unpack_batch(inputBatch)
-        network.zero_grad()
+        dlrm.zero_grad()
         logit = network(
                         X,
                         lS_o,
