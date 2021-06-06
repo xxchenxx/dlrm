@@ -238,9 +238,16 @@ class DLRM_Net(nn.Module):
                 # ph = d / math_ops.abs(d)
                 q *= np.sign(d)
                 q = q[:int(m), :]
-                LL.weight.data = torch.scatter(torch.from_numpy(np.expand_dims(q, 2)), [[[(int(m)-1)//2]]], torch.zeros(( int(m), int(n) )))
-                LL.weight.data = array_ops.scatter_nd([[]],
-                                                array_ops.expand_dims(q, 0), shape)
+                LL.weight.data = torch.scatter(torch.from_numpy(np.expand_dims(q, 2)), 2, [[[(int(m)-1)//2]]], torch.zeros(( int(m), int(n) )))
+                #LL.weight.data = array_ops.scatter_nd([[]],
+                #                                array_ops.expand_dims(q, 0), shape)
+                mean = 0.0  # std_dev = np.sqrt(variance)
+                std_dev = np.sqrt(2 / (m + n))  # np.sqrt(1 / m) # np.sqrt(1 / n)
+                W = np.random.normal(mean, std_dev, size=(m, n)).astype(np.float32)
+                std_dev = np.sqrt(1 / m)  # np.sqrt(2 / (m + 1))
+                bt = np.random.normal(mean, std_dev, size=m).astype(np.float32)
+                # approach 1
+                LL.bias.data = torch.tensor(bt, requires_grad=True)
 
         # approach 1: use ModuleList
         # return layers
