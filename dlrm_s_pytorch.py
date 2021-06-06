@@ -1641,7 +1641,7 @@ def run():
                         total_samp = 0
                         from metrics import get_ntk_n
                         ntk = get_ntk_n(dlrm, train_ld, dlrm_wrap, False, num_batch=5, use_gpu=use_gpu, ndevices=ndevices)
-                        writer.add_histogram_raw("Train/ntk", ntk, log_iter)
+                        writer.add_histogram("Train/ntk", ntk, log_iter)
 
                     # testing
                     if should_test:
