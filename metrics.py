@@ -30,7 +30,8 @@ def get_ntk_n(dlrm, xloader, network, train_mode=False, num_batch=5, use_gpu=Tru
                     try:
                         grad.append(W.grad.view(-1).detach())
                     except:
-                        grad.append(W.grad.coalesce().values().view(-1).detach())
+                        #grad.append(W.grad.coalesce().values().view(-1).detach())
+                        pass
 
             grads.append(torch.cat(grad, -1))
             dlrm.zero_grad()
