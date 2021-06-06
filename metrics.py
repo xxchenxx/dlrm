@@ -25,11 +25,11 @@ def get_ntk_n(dlrm, xloader, network, train_mode=False, num_batch=5, use_gpu=Tru
         for _idx in range(len(X)):
             logit[_idx:_idx+1].backward(torch.ones_like(logit[_idx:_idx+1]), retain_graph=True)
             grad = []
-            for name, W in network.named_parameters():
+            for name, W in dlrm.named_parameters():
                 if W.grad is not None:
                     grad.append(W.grad.view(-1).detach())
             grads.append(torch.cat(grad, -1))
-            network.zero_grad()
+            dlrm.zero_grad()
             torch.cuda.empty_cache()
     ######
     grads = torch.stack(grads, 0)
