@@ -203,7 +203,7 @@ class DLRM_Net(nn.Module):
             # construct fully connected operator
             LL = nn.Linear(int(n), int(m), bias=True)
 
-            if n >= m:
+            if n > m:
                 # initialize the weights
                 # with torch.no_grad():
                 # custom Xavier input, output or two-sided fill
@@ -223,14 +223,14 @@ class DLRM_Net(nn.Module):
                 # LL.bias = Parameter(torch.tensor(bt),requires_grad=True)
             else:
 
-                a = torch.randn((int(n), int(n))).numpy()
+                a = torch.randn((int(m), int(m))).numpy()
                 # Compute the qr factorization
                 q, r = np.linalg.qr(a, mode="complete")
                 # Make Q uniform
                 d = np.diag(r)
                 # ph = d / math_ops.abs(d)
                 q *= np.sign(d)
-                q = q[:int(m), :]
+                q = q[:, :int(n)]
                 LL.weight.data = torch.from_numpy(q)
                 #LL.weight.data = array_ops.scatter_nd([[]],
                 #                                array_ops.expand_dims(q, 0), shape)
