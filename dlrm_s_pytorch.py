@@ -778,11 +778,11 @@ def inference(
 ):
     test_accu = 0
     test_samp = 0
-
+    test_samp_ = 0
     if args.mlperf_logging:
         scores = []
         targets = []
-
+    total_test_loss = 0
     for i, testBatch in enumerate(test_ld):
         # early exit if nbatches was set by the user and was exceeded
         if nbatches > 0 and i >= nbatches:
@@ -796,7 +796,7 @@ def inference(
         if ext_dist.my_size > 1 and X_test.size(0) % ext_dist.my_size != 0:
             print("Warning: Skiping the batch %d with size %d" % (i, X_test.size(0)))
             continue
-
+        
         # forward pass
         Z_test = dlrm_wrap(
             X_test,
@@ -814,7 +814,11 @@ def inference(
         (_, batch_split_lengths) = ext_dist.get_split_lengths(X_test.size(0))
         if ext_dist.my_size > 1:
             Z_test = ext_dist.all_gather(Z_test, batch_split_lengths)
-
+        mbs = T_test.shape[0]
+        E_test = loss_fn_wrap(Z_test, T_test, use_gpu, device)
+        L_test = E_test.detach().cpu().numpy()
+        total_test_loss += L_test * mbs
+        test_samp_ += mbs
         if args.mlperf_logging:
             S_test = Z_test.detach().cpu().numpy()  # numpy array
             T_test = T_test.detach().cpu().numpy()  # numpy array
@@ -862,6 +866,7 @@ def inference(
                 validation_results[metric_name],
                 log_iter,
             )
+        writer.add_scalar("mlperf-metrics-test/loss", total_test_loss / test_samp_, log_iter)
         acc_test = validation_results["accuracy"]
     else:
         acc_test = test_accu / test_samp
