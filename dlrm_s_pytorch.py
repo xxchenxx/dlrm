@@ -1664,8 +1664,9 @@ def run():
                         total_iter = 0
                         total_samp = 0
                         from metrics import get_ntk_n
-                        ntk = get_ntk_n(dlrm, train_ld, dlrm_wrap, False, num_batch=5, use_gpu=use_gpu, ndevices=ndevices)
-                        writer.add_histogram("Train/ntk", ntk, log_iter)
+                        ntks, names = get_ntk_n(dlrm, train_ld, dlrm_wrap, False, num_batch=5, use_gpu=use_gpu, ndevices=ndevices)
+                        for ntk, name in zip(ntks, names):
+                                writer.add_histogram(f"Train/ntk_{name}", ntk, log_iter)
 
                     # testing
                     if should_test:
