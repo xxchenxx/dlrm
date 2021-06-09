@@ -776,6 +776,7 @@ def inference(
     use_gpu,
     log_iter=-1,
 ):
+    global log_data
     test_accu = 0
     test_samp = 0
     test_samp_ = 0
@@ -871,7 +872,13 @@ def inference(
     else:
         acc_test = test_accu / test_samp
         writer.add_scalar("Test/Acc", acc_test, log_iter)
+        if "Test/Acc" not in log_data:
+            log_data["Test/Acc"] = []
+        log_data["Test/Acc"].append(acc_test)
         writer.add_scalar("Test/loss", total_test_loss / test_samp_, log_iter)
+        if "Test/loss" not in log_data:
+            log_data["Test/loss"] = []
+        log_data["Test/loss"].append(total_test_loss / test_samp_)
 
     model_metrics_dict = {
         "nepochs": args.nepochs,
@@ -914,8 +921,9 @@ def inference(
         )
     return model_metrics_dict, is_best
 
-
+log_data = {}
 def run():
+    global log_data
     ### parse arguments ###
     parser = argparse.ArgumentParser(
         description="Train Deep Learning Recommendation Model (DLRM)"
@@ -1606,8 +1614,14 @@ def run():
                             for name, p in dlrm.named_parameters():
                                 try:
                                     writer.add_scalar(f"Train/{name}", p.grad.data.coalesce().values().mean(), log_iter)
+                                    if f"Train/{name}" not in log_data:
+                                        log_data[f"Train/{name}"] = []
+                                    log_data[f"Train/{name}"].append(p.grad.data.coalesce().values().mean())
                                 except RuntimeError:
                                     writer.add_scalar(f"Train/{name}", p.grad.data.mean(), log_iter)
+                                    if f"Train/{name}" not in log_data:
+                                        log_data[f"Train/{name}"] = []
+                                    log_data[f"Train/{name}"].append(p.grad.data.mean())
 
 
                         # optimizer
@@ -1661,16 +1675,29 @@ def run():
 
                         log_iter = nbatches * k + j + 1
                         writer.add_scalar("Train/Loss", train_loss, log_iter)
+                        if "Train/Loss" not in log_data:
+                            log_data["Train/Loss"] = []
+                        log_data["Train/Loss"].append(train_loss)
+                        
 
                         total_iter = 0
                         total_samp = 0
 
                         ### measurement starts
                         from metrics.ntk import get_ntk_n
+                        from metrics.linear_region import linear_region
                         ntks, names = get_ntk_n(dlrm, train_ld, dlrm_wrap, False, num_batch=5, use_gpu=use_gpu, ndevices=ndevices)
                         for ntk, name in zip(ntks, names):
-                                writer.add_scalar(f"Train/ntk_{name}", ntk, log_iter)
+                            writer.add_scalar(f"Train/ntk_{name}", ntk, log_iter)
+                            if f"Train/ntk_{name}" not in log_data:
+                                log_data[f"Train/ntk_{name}"] = []
+                            log_data[f"Train/ntk_{name}"].append(ntk)
 
+                        lr = linear_region(dlrm, train_ld, dlrm_wrap, False, num_batch=5, use_gpu=use_gpu, ndevices=ndevices)
+                        writer.add_scalar(f"Train/LR", lr, log_iter)
+                        if "Train/LR" not in log_data:
+                            log_data["Train/LR"] = []
+                        log_data["Train/LR"].append(ntk)
                         ### measurement ends
 
                     # testing
@@ -1906,6 +1933,8 @@ def run():
         onnx.checker.check_model(dlrm_pytorch_onnx)
     total_time_end = time_wrap(use_gpu)
 
+    import pickle
+    pickle.dump(log_data, open(args.save_model.split(".")[0] + ".pkl", 'wb'))
 
 if __name__ == "__main__":
     run()
