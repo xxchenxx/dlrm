@@ -1663,10 +1663,14 @@ def run():
 
                         total_iter = 0
                         total_samp = 0
-                        from metrics import get_ntk_n
+
+                        ### measurement starts
+                        from metrics.ntk import get_ntk_n
                         ntks, names = get_ntk_n(dlrm, train_ld, dlrm_wrap, False, num_batch=5, use_gpu=use_gpu, ndevices=ndevices)
                         for ntk, name in zip(ntks, names):
-                                writer.add_histogram(f"Train/ntk_{name}", ntk, log_iter)
+                                writer.add_scalar(f"Train/ntk_{name}", ntk, log_iter)
+
+                        ### measurement ends
 
                     # testing
                     if should_test:
