@@ -6,7 +6,6 @@ import torch.utils.data
 import torchvision.transforms as transforms
 import torchvision.datasets as dset
 from pdb import set_trace as bp
-from datasets import CUTOUT, Dataset2Class, ImageNet16
 from operator import mul
 from functools import reduce
 from dlrm_s_pytorch import unpack_batch
