@@ -871,6 +871,7 @@ def inference(
     else:
         acc_test = test_accu / test_samp
         writer.add_scalar("Test/Acc", acc_test, log_iter)
+        writer.add_scalar("Test/loss", total_test_loss / test_samp_, log_iter)
 
     model_metrics_dict = {
         "nepochs": args.nepochs,
