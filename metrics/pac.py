@@ -11,12 +11,12 @@ import torch
 import numpy as np
 import torch.nn.functional as F
 
-from dlrm_s_pytorch import unpack_batch, loss_fn_wrap
+from dlrm_s_pytorch import unpack_batch
 
 __all__ = ['eval_pac_weight', 'eval_pac_input']
 
 @torch.no_grad()
-def evaluate_function_noise(xloader, dlrm, network, noise, use_gpu=True, ndevices=1):
+def evaluate_function_noise(xloader, dlrm, network, noise, loss_fn_wrap, use_gpu=True, ndevices=1):
     #eval function for weight perturbation
     dlrm.eval()
     num_batch = 10
@@ -46,7 +46,7 @@ def evaluate_function_noise(xloader, dlrm, network, noise, use_gpu=True, ndevice
 
 
 def eval_pac_weight(
-    dlrm, xloader, network, train_mode=False, num_batch=5, use_gpu=True, ndevices=1,
+    dlrm, xloader, network, loss_fn_wrap, train_mode=False, num_batch=5, use_gpu=True, ndevices=1,
     beta=0.1, 
     max_search_times=20,
     iteration_times=15, 
@@ -139,7 +139,7 @@ def eval_pac_weight(
     return 1 / sigma_new**2
 
 def eval_pac_input(
-    dlrm, xloader, network, train_mode=False, num_batch=5, use_gpu=True, ndevices=1,
+    dlrm, xloader, network, loss_fn_wrap, train_mode=False, num_batch=5, use_gpu=True, ndevices=1,
     beta=0.1, 
     max_search_times=20,
     iteration_times=15, 
@@ -191,7 +191,7 @@ def eval_pac_input(
         
             loss_list = []
             for step in range(iteration_times):
-                perturb_loss = evaluate_function_noise(xloader, dlrm, network, sigma_new, use_gpu=True, ndevices=1)
+                perturb_loss = evaluate_function_noise(xloader, dlrm, network, sigma_new, loss_fn_wrap, use_gpu=True, ndevices=1)
                 loss_list.append(perturb_loss.cpu())  
 
         loss_mean = np.mean(np.array(loss_list))

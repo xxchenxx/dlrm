@@ -1702,8 +1702,8 @@ def run():
                         log_data["Train/LR"].append(ntk)
 
                         from metrics.pac import eval_pac_input, eval_pac_weight
-                        epi = eval_pac_input(dlrm, train_ld, dlrm_wrap, False, 5, use_gpu=use_gpu, ndevices=ndevices)
-                        epw = eval_pac_weight(dlrm, train_ld, dlrm_wrap, False, 5, use_gpu=use_gpu, ndevices=ndevices)
+                        epi = eval_pac_input(dlrm, train_ld, dlrm_wrap, loss_fn_wrap, False, 5, use_gpu=use_gpu, ndevices=ndevices)
+                        epw = eval_pac_weight(dlrm, train_ld, dlrm_wrap, loss_fn_wrap, False, 5, use_gpu=use_gpu, ndevices=ndevices)
 
                         writer.add_scalar(f"Train/PAC Input", epi, log_iter)
                         if "Train/PAC Input" not in log_data:
