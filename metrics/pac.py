@@ -192,7 +192,7 @@ def eval_pac_input(
             loss_list = []
             for step in range(iteration_times):
                 perturb_loss = evaluate_function_noise(xloader, dlrm, network, sigma_new, loss_fn_wrap, use_gpu=True, ndevices=1)
-                loss_list.append(perturb_loss.cpu())  
+                loss_list.append(perturb_loss)  
 
         loss_mean = np.mean(np.array(loss_list))
         print('current-sigma = {}, tolerent loss = {}, current loss = {}'.format(sigma_new, max_loss, loss_mean))

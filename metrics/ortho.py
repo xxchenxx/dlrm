@@ -78,5 +78,5 @@ def cond_features(dlrm, xloader, network, train_mode=False, num_batch=5, use_gpu
                         ndevices=ndevices,
                     )
     
-    smallest, largest = features_get_singular_values(W)
+    smallest, largest = features_get_singular_values(logit)
     return largest - smallest
