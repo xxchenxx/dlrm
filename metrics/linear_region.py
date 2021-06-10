@@ -238,7 +238,7 @@ def linear_region(dlrm, xloader, network, train_mode=False, num_batch=5, use_gpu
         features.append(output.detach())
     handles = []
     for m in dlrm.modules():
-        if isinstance(m, nn.ReLU) or isinstance(m, nn.Sigmoid):
+        if isinstance(m, nn.ReLU): #or isinstance(m, nn.Sigmoid):
             handles.append(m.register_forward_hook(hook=hook_in_forward))
     
     loader = iter(xloader)
