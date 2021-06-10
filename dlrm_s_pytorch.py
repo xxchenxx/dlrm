@@ -67,6 +67,8 @@ import time
 # are spawned during testing. So, we filter out those warnings.
 import warnings
 
+from google.protobuf.internal import enum_type_wrapper
+
 # data generation
 import dlrm_data_pytorch as dp
 
@@ -1698,7 +1700,23 @@ def run():
                         if "Train/LR" not in log_data:
                             log_data["Train/LR"] = []
                         log_data["Train/LR"].append(ntk)
+
+                        from metrics.pac import eval_pac_input, eval_pac_weight
+                        epi = eval_pac_input(dlrm, train_ld, dlrm_wrap, False, 5, use_gpu=use_gpu, ndevices=ndevices)
+                        epw = eval_pac_weight(dlrm, train_ld, dlrm_wrap, False, 5, use_gpu=use_gpu, ndevices=ndevices)
+
+                        writer.add_scalar(f"Train/PAC Input", epi, log_iter)
+                        if "Train/PAC Input" not in log_data:
+                            log_data["Train/PAC Input"] = []
+                        log_data["Train/PAC Input"].append(epi)
+
+                        writer.add_scalar(f"Train/PAC Weight", epw, log_iter)
+                        if "Train/PAC Weight" not in log_data:
+                            log_data["Train/PAC Weight"] = []
+                        log_data["Train/PAC Weight"].append(epw)
                         ### measurement ends
+
+
 
                     # testing
                     if should_test:
