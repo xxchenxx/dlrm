@@ -253,7 +253,8 @@ def linear_region(dlrm, xloader, network, train_mode=False, num_batch=5, use_gpu
         device,
         ndevices=ndevices,
     )
-    features = torch.cat([f.view(X.size(0), -1) for f in features], 1)
+    features = torch.cat([f.view(f.size(0), -1) for f in features], 1)
+    features = features.view(features.shape[0] * 2, -1)
     activations = torch.sign(features)  # after ReLU
     res = torch.matmul(activations.half(), (1 - activations).T.half())
     res += res.T
