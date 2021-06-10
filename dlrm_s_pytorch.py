@@ -61,7 +61,7 @@ import datetime
 import json
 import sys
 import time
-
+import os
 # onnx
 # The onnx import causes deprecation warnings every time workers
 # are spawned during testing. So, we filter out those warnings.
@@ -1026,7 +1026,7 @@ def run():
     parser.add_argument("--plot-compute-graph", action="store_true", default=False)
     parser.add_argument("--tensor-board-filename", type=str, default="run_kaggle_pt")
     # store/load model
-    parser.add_argument("--save-model", type=str, default="")
+    parser.add_argument("--save-model-dir", type=str, default="")
     parser.add_argument("--load-model", type=str, default="")
     # mlperf logging (disables other output and stops early)
     parser.add_argument("--mlperf-logging", action="store_true", default=False)
@@ -1592,17 +1592,6 @@ def run():
 
                     # compute loss and accuracy
                     L = E.detach().cpu().numpy()  # numpy array
-                    # training accuracy is not disabled
-                    # S = Z.detach().cpu().numpy()  # numpy array
-                    # T = T.detach().cpu().numpy()  # numpy array
-
-                    # # print("res: ", S)
-
-                    # # print("j, train: BCE, shifted_BCE ", j, L, L_shifted)
-
-                    # mbs = T.shape[0]  # = args.mini_batch_size except maybe for last
-                    # A = np.sum((np.round(S, 0) == T).astype(np.uint8))
-                    # A_shifted = np.sum((np.round(S_shifted, 0) == T).astype(np.uint8))
 
                     with record_function("DLRM backward"):
                         # scaled error gradient propagation
@@ -1645,7 +1634,8 @@ def run():
                         j + 1 == nbatches
                     )
                     should_test = (
-                        (args.test_freq > 0)
+                        ((j + 1) < 1000 and j % 5 == 0)
+                        and (args.test_freq > 0)
                         and (args.data_generation in ["dataset", "random"])
                         and (((j + 1) % args.test_freq == 0) or (j + 1 == nbatches))
                     )
@@ -1684,7 +1674,7 @@ def run():
 
                         total_iter = 0
                         total_samp = 0
-
+                        '''
                         ### measurement starts
                         from metrics.ntk import get_ntk_n
                         from metrics.linear_region import linear_region
@@ -1715,24 +1705,12 @@ def run():
                             log_data["Train/PAC Weight"] = []
                         log_data["Train/PAC Weight"].append(epw)
                         ### measurement ends
-
+                        '''
 
 
                     # testing
                     if should_test:
                         epoch_num_float = (j + 1) / len(train_ld) + k + 1
-                        if args.mlperf_logging:
-                            mlperf_logger.barrier()
-                            mlperf_logger.log_start(
-                                key=mlperf_logger.constants.EVAL_START,
-                                metadata={
-                                    mlperf_logger.constants.EPOCH_NUM: epoch_num_float
-                                },
-                            )
-
-                        # don't measure training iter time in a test iteration
-                        if args.mlperf_logging:
-                            previous_iteration_time = None
                         print(
                             "Testing at - {}/{} of epoch {},".format(j + 1, nbatches, k)
                         )
@@ -1747,86 +1725,9 @@ def run():
                             log_iter,
                         )
 
-                        if (
-                            is_best
-                            and not (args.save_model == "")
-                            and not args.inference_only
-                        ):
-                            model_metrics_dict["epoch"] = k
-                            model_metrics_dict["iter"] = j + 1
-                            model_metrics_dict["train_loss"] = train_loss
-                            model_metrics_dict["total_loss"] = total_loss
-                            model_metrics_dict[
-                                "opt_state_dict"
-                            ] = optimizer.state_dict()
-                            print("Saving model to {}".format(args.save_model))
-                            torch.save(model_metrics_dict, args.save_model)
-
-                        if args.mlperf_logging:
-                            mlperf_logger.barrier()
-                            mlperf_logger.log_end(
-                                key=mlperf_logger.constants.EVAL_STOP,
-                                metadata={
-                                    mlperf_logger.constants.EPOCH_NUM: epoch_num_float
-                                },
-                            )
-
-                        # Uncomment the line below to print out the total time with overhead
-                        # print("Total test time for this group: {}" \
-                        # .format(time_wrap(use_gpu) - accum_test_time_begin))
-
-                        if (
-                            args.mlperf_logging
-                            and (args.mlperf_acc_threshold > 0)
-                            and (best_acc_test > args.mlperf_acc_threshold)
-                        ):
-                            print(
-                                "MLPerf testing accuracy threshold "
-                                + str(args.mlperf_acc_threshold)
-                                + " reached, stop training"
-                            )
-                            break
-
-                        if (
-                            args.mlperf_logging
-                            and (args.mlperf_auc_threshold > 0)
-                            and (best_auc_test > args.mlperf_auc_threshold)
-                        ):
-                            print(
-                                "MLPerf testing auc threshold "
-                                + str(args.mlperf_auc_threshold)
-                                + " reached, stop training"
-                            )
-                            if args.mlperf_logging:
-                                mlperf_logger.barrier()
-                                mlperf_logger.log_end(
-                                    key=mlperf_logger.constants.RUN_STOP,
-                                    metadata={
-                                        mlperf_logger.constants.STATUS: mlperf_logger.constants.SUCCESS
-                                    },
-                                )
-                            break
-
-                if args.mlperf_logging:
-                    mlperf_logger.barrier()
-                    mlperf_logger.log_end(
-                        key=mlperf_logger.constants.EPOCH_STOP,
-                        metadata={mlperf_logger.constants.EPOCH_NUM: (k + 1)},
-                    )
-                    mlperf_logger.barrier()
-                    mlperf_logger.log_end(
-                        key=mlperf_logger.constants.BLOCK_STOP,
-                        metadata={mlperf_logger.constants.FIRST_EPOCH_NUM: (k + 1)},
-                    )
+                        assert args.save_model_dir is not None
+                        torch.save(model_metrics_dict, os.path.join(args.save_model_dir, f'step_{j}.pth.tar'))
                 k += 1  # nepochs
-            if args.mlperf_logging and best_auc_test <= args.mlperf_auc_threshold:
-                mlperf_logger.barrier()
-                mlperf_logger.log_end(
-                    key=mlperf_logger.constants.RUN_STOP,
-                    metadata={
-                        mlperf_logger.constants.STATUS: mlperf_logger.constants.ABORTED
-                    },
-                )
         else:
             print("Testing for inference only")
             inference(
@@ -1838,32 +1739,6 @@ def run():
                 device,
                 use_gpu,
             )
-
-    # profiling
-    if args.enable_profiling:
-        time_stamp = str(datetime.datetime.now()).replace(" ", "_")
-        with open("dlrm_s_pytorch" + time_stamp + "_shape.prof", "w") as prof_f:
-            prof_f.write(
-                prof.key_averages(group_by_input_shape=True).table(
-                    sort_by="self_cpu_time_total"
-                )
-            )
-        with open("dlrm_s_pytorch" + time_stamp + "_total.prof", "w") as prof_f:
-            prof_f.write(prof.key_averages().table(sort_by="self_cpu_time_total"))
-        prof.export_chrome_trace("dlrm_s_pytorch" + time_stamp + ".json")
-        # print(prof.key_averages().table(sort_by="cpu_time_total"))
-
-    # plot compute graph
-    if args.plot_compute_graph:
-        sys.exit(
-            "ERROR: Please install pytorchviz package in order to use the"
-            + " visualization. Then, uncomment its import above as well as"
-            + " three lines below and run the code again."
-        )
-        # V = Z.mean() if args.inference_only else E
-        # dot = make_dot(V, params=dict(dlrm.named_parameters()))
-        # dot.render('dlrm_s_pytorch_graph') # write .pdf file
-
     # test prints
     if not args.inference_only and args.debug_mode:
         print("updated parameters (weights and bias):")
@@ -1871,88 +1746,6 @@ def run():
             print(param.detach().cpu().numpy())
 
     # export the model in onnx
-    if args.save_onnx:
-        """
-        # workaround 1: tensor -> list
-        if torch.is_tensor(lS_i_onnx):
-            lS_i_onnx = [lS_i_onnx[j] for j in range(len(lS_i_onnx))]
-        # workaound 2: list -> tensor
-        lS_i_onnx = torch.stack(lS_i_onnx)
-        """
-        # debug prints
-        # print("inputs", X_onnx, lS_o_onnx, lS_i_onnx)
-        # print("output", dlrm_wrap(X_onnx, lS_o_onnx, lS_i_onnx, use_gpu, device))
-        dlrm_pytorch_onnx_file = "dlrm_s_pytorch.onnx"
-        batch_size = X_onnx.shape[0]
-        print("X_onnx.shape", X_onnx.shape)
-        if torch.is_tensor(lS_o_onnx):
-            print("lS_o_onnx.shape", lS_o_onnx.shape)
-        else:
-            for oo in lS_o_onnx:
-                print("oo.shape", oo.shape)
-        if torch.is_tensor(lS_i_onnx):
-            print("lS_i_onnx.shape", lS_i_onnx.shape)
-        else:
-            for ii in lS_i_onnx:
-                print("ii.shape", ii.shape)
-
-        # name inputs and outputs
-        o_inputs = (
-            ["offsets"]
-            if torch.is_tensor(lS_o_onnx)
-            else ["offsets_" + str(i) for i in range(len(lS_o_onnx))]
-        )
-        i_inputs = (
-            ["indices"]
-            if torch.is_tensor(lS_i_onnx)
-            else ["indices_" + str(i) for i in range(len(lS_i_onnx))]
-        )
-        all_inputs = ["dense_x"] + o_inputs + i_inputs
-        # debug prints
-        print("inputs", all_inputs)
-
-        # create dynamic_axis dictionaries
-        do_inputs = (
-            [{"offsets": {1: "batch_size"}}]
-            if torch.is_tensor(lS_o_onnx)
-            else [
-                {"offsets_" + str(i): {0: "batch_size"}} for i in range(len(lS_o_onnx))
-            ]
-        )
-        di_inputs = (
-            [{"indices": {1: "batch_size"}}]
-            if torch.is_tensor(lS_i_onnx)
-            else [
-                {"indices_" + str(i): {0: "batch_size"}} for i in range(len(lS_i_onnx))
-            ]
-        )
-        dynamic_axes = {"dense_x": {0: "batch_size"}, "pred": {0: "batch_size"}}
-        for do in do_inputs:
-            dynamic_axes.update(do)
-        for di in di_inputs:
-            dynamic_axes.update(di)
-        # debug prints
-        print(dynamic_axes)
-        # export model
-        torch.onnx.export(
-            dlrm,
-            (X_onnx, lS_o_onnx, lS_i_onnx),
-            dlrm_pytorch_onnx_file,
-            verbose=True,
-            use_external_data_format=True,
-            opset_version=11,
-            input_names=all_inputs,
-            output_names=["pred"],
-            dynamic_axes=dynamic_axes,
-        )
-        # recover the model back
-        dlrm_pytorch_onnx = onnx.load("dlrm_s_pytorch.onnx")
-        # check the onnx model
-        onnx.checker.check_model(dlrm_pytorch_onnx)
-    total_time_end = time_wrap(use_gpu)
-
-    import pickle
-    pickle.dump(log_data, open(args.save_model.split(".")[0] + ".pkl", 'wb'))
 
 if __name__ == "__main__":
     run()
