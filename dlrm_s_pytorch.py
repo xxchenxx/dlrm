@@ -1634,7 +1634,7 @@ def run():
                         (j + 1) % args.print_freq == 0) or (
                         j + 1 == nbatches
                     ) or (((j + 1) < 1000 and j % 5 == 0))
-                    
+
                     should_test = (
                         
                         (args.test_freq > 0)
@@ -1729,7 +1729,7 @@ def run():
 
                         assert args.save_model_dir is not None
                         os.makedirs(args.save_model_dir, exist_ok=True)
-                        torch.save(dlrm, os.path.join(args.save_model_dir, f'step_{j}.pth.tar'))
+                        torch.save(dlrm.state_dict(), os.path.join(args.save_model_dir, f'step_{j}.pth.tar'))
                 k += 1  # nepochs
         else:
             print("Testing for inference only")
