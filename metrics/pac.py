@@ -121,7 +121,7 @@ def eval_pac_weight(
             )
             E = loss_fn_wrap(Z, T, use_gpu, device)
             perturb_loss = E.detach().cpu().numpy()
-            loss_list.append(perturb_loss.cpu())  
+            loss_list.append(perturb_loss)  
 
         loss_mean = np.mean(np.array(loss_list))
         print('current-sigma = {}, tolerent loss = {}, current loss = {}'.format(sigma_new, max_loss, loss_mean))
