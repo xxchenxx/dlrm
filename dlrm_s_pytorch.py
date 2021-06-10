@@ -1727,7 +1727,7 @@ def run():
 
                         assert args.save_model_dir is not None
                         os.makedirs(args.save_model_dir, exist_ok=True)
-                        torch.save(model_metrics_dict, os.path.join(args.save_model_dir, f'step_{j}.pth.tar'))
+                        torch.save(dlrm, os.path.join(args.save_model_dir, f'step_{j}.pth.tar'))
                 k += 1  # nepochs
         else:
             print("Testing for inference only")
