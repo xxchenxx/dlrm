@@ -1630,14 +1630,16 @@ def run():
                     total_iter += 1
                     total_samp += mbs
 
-                    should_print = ((j + 1) % args.print_freq == 0) or (
+                    should_print = (
+                        (j + 1) % args.print_freq == 0) or (
                         j + 1 == nbatches
-                    )
+                    ) or (((j + 1) < 1000 and j % 5 == 0))
+                    
                     should_test = (
-                        ((j + 1) < 1000 and j % 5 == 0)
-                        and (args.test_freq > 0)
+                        
+                        (args.test_freq > 0)
                         and (args.data_generation in ["dataset", "random"])
-                        and (((j + 1) % args.test_freq == 0) or (j + 1 == nbatches))
+                        and ((((j + 1) % args.test_freq == 0) or (j + 1 == nbatches)) or ((j + 1) < 1000 and j % 5 == 0) )
                     )
 
                     # print time, loss and accuracy
