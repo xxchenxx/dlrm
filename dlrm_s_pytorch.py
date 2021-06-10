@@ -1676,7 +1676,7 @@ def run():
 
                         total_iter = 0
                         total_samp = 0
-                        '''
+                        
                         ### measurement starts
                         from metrics.ntk import get_ntk_n
                         from metrics.linear_region import linear_region
@@ -1707,7 +1707,7 @@ def run():
                             log_data["Train/PAC Weight"] = []
                         log_data["Train/PAC Weight"].append(epw)
                         ### measurement ends
-                        '''
+                        
 
 
                     # testing
@@ -1726,10 +1726,10 @@ def run():
                             use_gpu,
                             log_iter,
                         )
-
-                        assert args.save_model_dir is not None
-                        os.makedirs(args.save_model_dir, exist_ok=True)
-                        torch.save(dlrm.state_dict(), os.path.join(args.save_model_dir, f'step_{j}.pth.tar'))
+                        if (j + 1) % 10000 == 0:
+                            assert args.save_model_dir is not None
+                            os.makedirs(args.save_model_dir, exist_ok=True)
+                            torch.save(dlrm.state_dict(), os.path.join(args.save_model_dir, f'step_{j}.pth.tar'))
                 k += 1  # nepochs
         else:
             print("Testing for inference only")
