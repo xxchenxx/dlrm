@@ -231,15 +231,15 @@ class Linear_Region_Collector:
 
 import copy
 def linear_region(dlrm, xloader, network, train_mode=False, num_batch=5, use_gpu=True, ndevices=1):
-    dlrm_clone = copy.deepcopy(dlrm)
+    #dlrm_clone = copy.deepcopy(dlrm)
     device = torch.cuda.current_device()
     features = []
     def hook_in_forward(module, input, output):
         features.append(output.detach())
-    
+    handles = []
     for m in dlrm_clone.modules():
-        if isinstance(m, nn.ReLU):
-            m.register_forward_hook(hook=hook_in_forward)
+        if isinstance(m, nn.ReLU) or isinstance(m, nn.Sigmoid):
+            handles.append(m.register_forward_hook(hook=hook_in_forward))
     
     loader = iter(xloader)
     inputBatch = loader.next()
@@ -261,4 +261,6 @@ def linear_region(dlrm, xloader, network, train_mode=False, num_batch=5, use_gpu
     res = res.sum(1)
     res = 1. / res.float()
     res = res.sum().item()
+    for handle in handles:
+        handle.remove()
     return res
