@@ -38,7 +38,7 @@ def evaluate_function_noise(xloader, dlrm, network, noise, loss_fn_wrap, use_gpu
             ndevices=ndevices,
         )
         E = loss_fn_wrap(Z, T, use_gpu, device)
-        sum_E += E.detach().numpy()
+        sum_E += E.detach().cpu().numpy()
         break
 
     return sum_E / num_batch
