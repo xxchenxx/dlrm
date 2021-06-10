@@ -229,9 +229,9 @@ class Linear_Region_Collector:
             LRCount.update2D(feature_data)
 
 
-
+import copy
 def linear_region(dlrm, xloader, network, train_mode=False, num_batch=5, use_gpu=True, ndevices=1):
-    dlrm_clone = dlrm.clone()
+    dlrm_clone = copy.deepcopy(dlrm)
     device = torch.cuda.current_device()
     features = []
     def hook_in_forward(module, input, output):
