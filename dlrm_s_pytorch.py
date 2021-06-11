@@ -1340,6 +1340,7 @@ def run():
     if not args.inference_only:
         if use_gpu and args.optimizer in ["rwsadagrad", "adagrad"]:
             #sys.exit("GPU version of Adagrad is not supported by PyTorch.")
+            pass
         # specify the optimizer algorithm
         opts = {
             "sgd": torch.optim.SGD,
