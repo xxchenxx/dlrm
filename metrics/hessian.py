@@ -254,13 +254,10 @@ def hessian_eigen_input(
 
         params, gradsH = [X], [X.grad + 0.]
         print(gradsH[0].shape)
-        v = []
-        for name, p in dlrm.named_parameters():
-            if not 'emb' in name:
-                v.append(torch.randn(p.size()).to(device))
-                
+        eigenvalue = None
+        v = [torch.randn(p.size()).to(device) for p in params
+            ]  # generate random vector
         v = normalization(v)  # normalize the vector
-        print(v[0].shape)
         
         for i in range(100):
             v = orthnormal(v, eigenvectors)
