@@ -135,6 +135,7 @@ def hessian_eigen(
         for name, p in dlrm.named_parameters():
             if not 'emb' in name:
                 v.append(torch.randn(p.size()).to(device))
+                
         v = normalization(v)  # normalize the vector
 
         for i in range(100):
@@ -198,10 +199,11 @@ def hessian_trace(
 
         for i in range(100):
             dlrm.zero_grad()
-            v = [
-                torch.randint_like(p, high=2, device=device)
-                for p in params
-            ]
+            #params, gradsH = get_params_grad(dlrm)
+            v = []
+            for name, p in dlrm.named_parameters():
+                if not 'emb' in name:
+                    v.append(torch.randn(p.size()).to(device))
             # generate Rademacher random variables
             for v_i in v:
                 v_i[v_i == 0] = -1
