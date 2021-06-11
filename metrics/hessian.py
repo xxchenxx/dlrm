@@ -137,7 +137,7 @@ def hessian_eigen(
                 v.append(torch.randn(p.size()).to(device))
                 
         v = normalization(v)  # normalize the vector
-
+        eigenvalue = None
         for i in range(100):
             v = orthnormal(v, eigenvectors)
             dlrm.zero_grad()
