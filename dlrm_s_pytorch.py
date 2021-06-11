@@ -1735,7 +1735,8 @@ def run():
                         log_data["Train/Hessian Trace Input"].append(hti)
                     
                         cw = cond_weight(dlrm, train_ld, dlrm_wrap, False, 5, use_gpu=use_gpu, ndevices=ndevices)
-                        writer.add_scalar(f"Train/Cond. Weight", cw, log_iter)
+                        for name in cw:
+                            writer.add_scalar(f"Train/Cond. Weight {name}", cw[name], log_iter)
                         if "Train/Cond. Weight" not in log_data:
                             log_data["Train/Cond. Weight"] = []
                         log_data["Train/Cond. Weight"].append(cw)
