@@ -158,7 +158,7 @@ def hessian_eigen(
         eigenvalues.append(eigenvalue)
         eigenvectors.append(v)
         computed_dim += 1
-
+    print(eigenvalues)
     return eigenvalues, eigenvectors
 
 def hessian_trace(
