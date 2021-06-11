@@ -48,7 +48,7 @@ def features_dominant_eigenvalue(A):
     ).squeeze()
     denominator = (torch.norm(x.view(B, N), p=2, dim=1) ** 2).squeeze()
 
-    return numerator / denominator
+    return numerator / (denominator + 1e-6)
 
 def features_get_singular_values(A):
     device = torch.cuda.current_device()
@@ -79,4 +79,4 @@ def cond_features(dlrm, xloader, network, train_mode=False, num_batch=5, use_gpu
                     )
     
     smallest, largest = features_get_singular_values(logit)
-    return largest / smallest
+    return (largest / smallest).sum()
