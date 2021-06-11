@@ -58,7 +58,7 @@ def features_get_singular_values(A):
     largest = features_dominant_eigenvalue(AAT)
     I = torch.eye(N).expand(B, N, N).to(device)  # noqa
     I = I * largest.view(B, 1, 1).repeat(1, N, N)  # noqa
-    tmp = dominant_eigenvalue(AAT - I)
+    tmp = features_dominant_eigenvalue(AAT - I)
     return tmp + largest, largest
 
 from dlrm_s_pytorch import unpack_batch
