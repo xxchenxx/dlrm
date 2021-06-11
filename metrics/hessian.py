@@ -313,6 +313,7 @@ def hessian_trace_input(
         #params, gradsH = get_params_grad(dlrm)
         params = [X]
         gradsH = [X.grad + 0.]
+        print(gradsH)
         trace_vhv = []
         trace = 0
         
