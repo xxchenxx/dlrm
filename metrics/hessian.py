@@ -68,10 +68,8 @@ def get_params_grad(model):
         if not param.requires_grad:
             continue
         params.append(param)
-        try:
-            grads.append(0. if param.grad is None else 0. + param.grad)
-        except:
-            grads.append(0. if param.grad is None else 0. + param.grad.coalesce())
+        grads.append(0. if param.grad is None else param.grad)
+        
 
     return params, grads
 
