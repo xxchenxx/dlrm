@@ -255,7 +255,7 @@ def hessian_eigen_input(
         params, gradsH = [X], [X.grad + 0.]
         print(gradsH[0].shape)
         eigenvalue = None
-        v = [torch.randn(p.size()).to(device) for p in params
+        v = [torch.randn(p.size()) for p in params
             ]  # generate random vector
         v = normalization(v)  # normalize the vector
         
