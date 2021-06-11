@@ -52,9 +52,10 @@ def features_dominant_eigenvalue(A):
 
 def features_get_singular_values(A):
     device = torch.cuda.current_device()
+    A = A.view(A.shape[0], A.shape[1], 1)
     AAT = torch.bmm(A, A.permute(0, 2, 1))
     B, N, _ = AAT.size()
-    largest = dominant_eigenvalue(AAT)
+    largest = features_dominant_eigenvalue(AAT)
     I = torch.eye(N).expand(B, N, N).to(device)  # noqa
     I = I * largest.view(B, 1, 1).repeat(1, N, N)  # noqa
     tmp = dominant_eigenvalue(AAT - I)
