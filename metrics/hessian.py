@@ -200,10 +200,11 @@ def hessian_trace(
         for i in range(100):
             dlrm.zero_grad()
             #params, gradsH = get_params_grad(dlrm)
-            v = []
-            for name, p in dlrm.named_parameters():
-                if not 'emb' in name:
-                    v.append(torch.randn(p.size()).to(device))
+            v = [
+                torch.randint_like(p, high=2, device=device)
+                for p in params
+            ]
+
             # generate Rademacher random variables
             for v_i in v:
                 v_i[v_i == 0] = -1
@@ -253,8 +254,11 @@ def hessian_eigen_input(
 
         params, gradsH = [X], [X.grad + 0.]
         
-        v = [torch.randn(p.size()).to(device) for p in dlrm.parameters()
-            ]  # generate random vector
+        v = []
+        for name, p in dlrm.named_parameters():
+            if not 'emb' in name:
+                v.append(torch.randn(p.size()).to(device))
+                
         v = normalization(v)  # normalize the vector
 
         for i in range(10):
