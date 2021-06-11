@@ -216,7 +216,7 @@ def hessian_trace(
             else:
                 trace = np.mean(trace_vhv)
 
-    return trace_vhv
+    return trace
 
 
 def hessian_eigen_input(

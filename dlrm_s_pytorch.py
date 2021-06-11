@@ -1710,13 +1710,13 @@ def run():
                             log_data["Train/PAC Weight"] = []
                         log_data["Train/PAC Weight"].append(epw)
 
-                        he = hessian_eigen(dlrm, train_ld, dlrm_wrap, loss_fn_wrap, False, 5, use_gpu=use_gpu, ndevices=ndevices)[0]
+                        he = hessian_eigen(dlrm, train_ld, dlrm_wrap, loss_fn_wrap, False, 5, use_gpu=use_gpu, ndevices=ndevices)[0][0]
                         writer.add_scalar(f"Train/Hessian Eigen", he, log_iter)
                         if "Train/Hessian Eigen" not in log_data:
                             log_data["Train/Hessian Eigen"] = []
                         log_data["Train/Hessian Eigen"].append(he)
 
-                        hei = hessian_eigen_input(dlrm, train_ld, dlrm_wrap, loss_fn_wrap, False, 5, use_gpu=use_gpu, ndevices=ndevices)[0]
+                        hei = hessian_eigen_input(dlrm, train_ld, dlrm_wrap, loss_fn_wrap, False, 5, use_gpu=use_gpu, ndevices=ndevices)[0][0]
                         writer.add_scalar(f"Train/Hessian Eigen Input", hei, log_iter)
                         if "Train/Hessian Eigen Input" not in log_data:
                             log_data["Train/Hessian Eigen Input"] = []
