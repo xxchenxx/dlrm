@@ -260,7 +260,7 @@ def hessian_eigen_input(
         for i in range(10):
             v = orthnormal(v, eigenvectors)
             dlrm.zero_grad()
-            X.zero_grad()
+            #X.zero_grad()
             Hv = hessian_vector_product(gradsH, params, v)
             tmp_eigenvalue = group_product(Hv, v).cpu().item()
 
@@ -319,7 +319,7 @@ def hessian_trace_input(
 
         for i in range(100):
             dlrm.zero_grad()
-            X.zero_grad()
+            #X.zero_grad()
             v = [
                 torch.randint_like(p, high=2, device=device)
                 for p in params
