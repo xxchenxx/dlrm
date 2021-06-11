@@ -1792,6 +1792,7 @@ def run():
 
     # export the model in onnx
     import pickle
+    os.makedirs(args.save_model_dir, exist_ok=True)
     pickle.dump(log_data, open(os.path.join(args.save_model_dir, 'data.pkl'), 'wb'))
 if __name__ == "__main__":
     run()
