@@ -68,7 +68,7 @@ def get_params_grad(model):
         if not param.requires_grad or 'emb' in name:
             continue
         params.append(param)
-        grads.append(0. if param.grad is None else param.grad)
+        grads.append(0. if param.grad is None else param.grad + 0.)
         
     return params, grads
 
