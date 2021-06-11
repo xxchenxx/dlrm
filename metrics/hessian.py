@@ -277,7 +277,7 @@ def hessian_eigen_input(
     return eigenvalues, eigenvectors
 
 
-def hessian_trace(
+def hessian_trace_input(
     dlrm, xloader, network, loss_fn_wrap, train_mode=False, num_batch=5, use_gpu=True, ndevices=1,
     beta=0.1, 
     max_search_times=20,

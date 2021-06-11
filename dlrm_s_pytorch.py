@@ -1682,7 +1682,7 @@ def run():
                         from metrics.ntk import get_ntk_n
                         from metrics.linear_region import linear_region
                         from metrics.ortho import cond_weight, cond_features
-                        from metrics.hessian import hessian
+                        from metrics.hessian import hessian_eigen, hessian_eigen_input, hessian_trace, hessian_trace_input
                         ntks, names = get_ntk_n(dlrm, train_ld, dlrm_wrap, False, num_batch=5, use_gpu=use_gpu, ndevices=ndevices)
                         for ntk, name in zip(ntks, names):
                             writer.add_scalar(f"Train/ntk_{name}", ntk, log_iter)
@@ -1709,6 +1709,31 @@ def run():
                         if "Train/PAC Weight" not in log_data:
                             log_data["Train/PAC Weight"] = []
                         log_data["Train/PAC Weight"].append(epw)
+
+                        he = max(hessian_eigen(dlrm, train_ld, dlrm_wrap, loss_fn_wrap, False, 5, use_gpu=use_gpu, ndevices=ndevices))
+                        writer.add_scalar(f"Train/Hessian Eigen", he, log_iter)
+                        if "Train/Hessian Eigen" not in log_data:
+                            log_data["Train/Hessian Eigen"] = []
+                        log_data["Train/Hessian Eigen"].append(he)
+
+                        hei = max(hessian_eigen_input(dlrm, train_ld, dlrm_wrap, loss_fn_wrap, False, 5, use_gpu=use_gpu, ndevices=ndevices))
+                        writer.add_scalar(f"Train/Hessian Eigen Input", hei, log_iter)
+                        if "Train/Hessian Eigen Input" not in log_data:
+                            log_data["Train/Hessian Eigen Input"] = []
+                        log_data["Train/Hessian Eigen Input"].append(hei)
+
+                        ht = hessian_trace(dlrm, train_ld, dlrm_wrap, loss_fn_wrap, False, 5, use_gpu=use_gpu, ndevices=ndevices)
+                        writer.add_scalar(f"Train/Hessian Trace", ht, log_iter)
+                        if "Train/Hessian Trace" not in log_data:
+                            log_data["Train/Hessian Trace"] = []
+                        log_data["Train/Hessian Trace"].append(ht)
+
+                        hti = hessian_trace(dlrm, train_ld, dlrm_wrap, loss_fn_wrap, False, 5, use_gpu=use_gpu, ndevices=ndevices)
+                        writer.add_scalar(f"Train/Hessian Trace Input", hti, log_iter)
+                        if "Train/Hessian Trace Input" not in log_data:
+                            log_data["Train/Hessian Trace Input"] = []
+                        log_data["Train/Hessian Trace Input"].append(hti)
+                    
                         ### measurement ends
                         
 
