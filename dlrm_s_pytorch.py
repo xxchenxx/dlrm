@@ -1742,6 +1742,7 @@ def run():
                         log_data["Train/Cond. Weight"].append(cw)
 
                         cf = cond_features(dlrm, train_ld, dlrm_wrap, False, 5, use_gpu=use_gpu, ndevices=ndevices)
+                        print(cf)
                         writer.add_scalar(f"Train/Cond. Features", cf, log_iter)
                         if "Train/Cond. Features" not in log_data:
                             log_data["Train/Cond. Features"] = []
