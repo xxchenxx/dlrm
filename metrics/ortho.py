@@ -17,7 +17,6 @@ def dominant_eigenvalue(A):
     return AAx.permute(1, 0) @ Ax / (Ax.permute(1, 0) @ Ax)
 
 def get_singular_values(A):
-    print(A.shape)
     ATA = A.permute(1, 0) @ A
     N, _ = ATA.size()
     largest = dominant_eigenvalue(ATA)
@@ -29,7 +28,7 @@ def get_singular_values(A):
 def cond_weight(dlrm, xloader, network, train_mode=False, num_batch=5, use_gpu=True, ndevices=1):
     cond_weights = {}
     for name, weight in dlrm.named_parameters():
-        if not 'emb' in name:
+        if not 'emb' in name and 'weight' in name:
             s, l = get_singular_values(weight.data)
             cond_weights[name] = l / s
     
