@@ -17,7 +17,7 @@ def dominant_eigenvalue(A):
     return AAx.permute(1, 0) @ Ax / (Ax.permute(1, 0) @ Ax)
 
 def get_singular_values(A):
-
+    print(A.shape)
     ATA = A.permute(1, 0) @ A
     N, _ = ATA.size()
     largest = dominant_eigenvalue(ATA)
