@@ -131,9 +131,10 @@ def hessian_eigen(
         computed_dim = 0
 
         params, gradsH = get_params_grad(dlrm)
-        
-        v = [torch.randn(p.size()).to(device) for p in dlrm.parameters()
-            ]  # generate random vector
+        v = []
+        for name, p in dlrm.named_parameters():
+            if not 'emb' in name:
+                v.append(torch.randn(p.size()).to(device))
         v = normalization(v)  # normalize the vector
 
         for i in range(100):
