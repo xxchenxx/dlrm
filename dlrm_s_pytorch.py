@@ -1728,7 +1728,7 @@ def run():
                             log_data["Train/Hessian Trace"] = []
                         log_data["Train/Hessian Trace"].append(ht)
 
-                        hti = hessian_trace_input(dlrm, train_ld, dlrm_wrap, loss_fn_wrap, False, 5, use_gpu=use_gpu, ndevices=ndevices)[0][0]
+                        hti = hessian_trace_input(dlrm, train_ld, dlrm_wrap, loss_fn_wrap, False, 5, use_gpu=use_gpu, ndevices=ndevices)[0]
                         writer.add_scalar(f"Train/Hessian Trace Input", hti, log_iter)
                         if "Train/Hessian Trace Input" not in log_data:
                             log_data["Train/Hessian Trace Input"] = []
