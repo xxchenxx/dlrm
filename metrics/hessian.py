@@ -324,7 +324,7 @@ def hessian_trace_input(
             dlrm.zero_grad()
             #X.zero_grad()
             v = [
-                torch.randint_like(p, high=2, device=device)
+                torch.randint_like(p, high=2)
                 for p in params
             ]
             # generate Rademacher random variables

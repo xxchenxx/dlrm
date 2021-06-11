@@ -1728,12 +1728,24 @@ def run():
                             log_data["Train/Hessian Trace"] = []
                         log_data["Train/Hessian Trace"].append(ht)
 
-                        hti = hessian_trace(dlrm, train_ld, dlrm_wrap, loss_fn_wrap, False, 5, use_gpu=use_gpu, ndevices=ndevices)
+                        hti = hessian_trace(dlrm, train_ld, dlrm_wrap, loss_fn_wrap, False, 5, use_gpu=use_gpu, ndevices=ndevices)[0][0]
                         writer.add_scalar(f"Train/Hessian Trace Input", hti, log_iter)
                         if "Train/Hessian Trace Input" not in log_data:
                             log_data["Train/Hessian Trace Input"] = []
                         log_data["Train/Hessian Trace Input"].append(hti)
                     
+                        cw = cond_weight(dlrm, train_ld, dlrm_wrap, loss_fn_wrap, False, 5, use_gpu=use_gpu, ndevices=ndevices)
+                        writer.add_scalar(f"Train/Cond. Weight", cw, log_iter)
+                        if "Train/Cond. Weight" not in log_data:
+                            log_data["Train/Cond. Weight"] = []
+                        log_data["Train/Cond. Weight"].append(cw)
+
+                        cf = cond_features(dlrm, train_ld, dlrm_wrap, loss_fn_wrap, False, 5, use_gpu=use_gpu, ndevices=ndevices)
+                        writer.add_scalar(f"Train/Cond. Features", cf, log_iter)
+                        if "Train/Cond. Features" not in log_data:
+                            log_data["Train/Cond. Features"] = []
+                        log_data["Train/Cond. Features"].append(cf)
+                        
                         ### measurement ends
                         
 
