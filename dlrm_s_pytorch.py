@@ -1681,6 +1681,8 @@ def run():
                         ### measurement starts
                         from metrics.ntk import get_ntk_n
                         from metrics.linear_region import linear_region
+                        from metrics.ortho import cond_weight, cond_features
+                        from metrics.hessian import hessian
                         ntks, names = get_ntk_n(dlrm, train_ld, dlrm_wrap, False, num_batch=5, use_gpu=use_gpu, ndevices=ndevices)
                         for ntk, name in zip(ntks, names):
                             writer.add_scalar(f"Train/ntk_{name}", ntk, log_iter)
