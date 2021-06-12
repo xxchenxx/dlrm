@@ -1593,8 +1593,9 @@ def run():
                         W = W[ext_dist.get_my_slice(mbs)]
 
                     # loss
-                    print(T)
-                    assert False
+                    #print(T)
+                    index = torch.from_numpy(np.random.permutation(T.shape[0])[:int(args.label_noise * T.shape[0])])
+                    T[index] = torch.randint(0,2,(int(args.label_noise * T.shape[0])))
                     E = loss_fn_wrap(Z, T, use_gpu, device)
 
                     # compute loss and accuracy
