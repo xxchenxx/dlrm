@@ -322,7 +322,8 @@ class DLRM_Net(nn.Module):
         md_flag=False,
         md_threshold=200,
         weighted_pooling=None,
-        loss_function="bce"
+        loss_function="bce",
+        weight_noise=0.1
     ):
         super(DLRM_Net, self).__init__()
 
@@ -335,6 +336,7 @@ class DLRM_Net(nn.Module):
         ):
 
             # save arguments
+            self.weight_noise = weight_noise
             self.ndevices = ndevices
             self.output_d = 0
             self.parallel_model_batch_size = -1
@@ -527,6 +529,11 @@ class DLRM_Net(nn.Module):
         return R
 
     def forward(self, dense_x, lS_o, lS_i):
+        
+        for name, p in self.named_parameters():
+            if 'emb' not in name:
+                p.data.add_(torch.randn(p.data.shape) * self.weight_noise)
+
         if ext_dist.my_size > 1:
             # multi-node multi-device run
             return self.distributed_forward(dense_x, lS_o, lS_i)
@@ -1701,8 +1708,8 @@ def run():
                         log_data["Train/LR"].append(ntk)
 
                         from metrics.pac import eval_pac_input, eval_pac_weight
-                        epi = eval_pac_input(dlrm, train_ld, dlrm_wrap, loss_fn_wrap, False, 1, use_gpu=use_gpu, ndevices=ndevices)
-                        epw = eval_pac_weight(dlrm, train_ld, dlrm_wrap, loss_fn_wrap, False, 1, use_gpu=use_gpu, ndevices=ndevices)
+                        epi = eval_pac_input(dlrm, train_ld, dlrm_wrap, loss_fn_wrap, False, 5, use_gpu=use_gpu, ndevices=ndevices)
+                        epw = eval_pac_weight(dlrm, train_ld, dlrm_wrap, loss_fn_wrap, False, 5, use_gpu=use_gpu, ndevices=ndevices)
 
                         writer.add_scalar(f"Train/PAC Input", epi, log_iter)
                         if "Train/PAC Input" not in log_data:

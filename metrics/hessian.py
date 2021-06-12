@@ -98,22 +98,16 @@ def orthnormal(w, v_list):
     return normalization(w)
 
 from dlrm_s_pytorch import unpack_batch
-
-def hessian_eigen(
-    dlrm, xloader, network, loss_fn_wrap, train_mode=False, num_batch=5, use_gpu=True, ndevices=1,
-    beta=0.1, 
-    max_search_times=20,
-    iteration_times=15, 
-    sigma_min=0., 
-    sigma_max=5., 
-    eps=1e-3):
+def dataloader_hv_product(dlrm, xloader, network, loss_fn_wrap, v, params, num_batch=50,use_gpu=True, ndevices=1):
+    num_data = 0  # count the number of datum points in the dataloader
     device = torch.cuda.current_device()
-    #network.eval()
-    ######
-    grads = []
+    THv = [torch.zeros(p.size()) for p in params
+          ]  # accumulate result
     for i, inputBatch in enumerate(xloader):
         if num_batch > 0 and i >= num_batch: break
         X, lS_o, lS_i, T, W, CBPP = unpack_batch(inputBatch)
+        dlrm.zero_grad()
+        tmp_num_data = X.size(0)
         Z = network(
             X,
             lS_o,
@@ -124,100 +118,85 @@ def hessian_eigen(
         )
         E = loss_fn_wrap(Z, T, use_gpu, device)
         E.backward(create_graph=True)
-
-        eigenvalues = []
-        eigenvectors = []
-
-        computed_dim = 0
-
+        
         params, gradsH = get_params_grad(dlrm)
-        v = []
-        for name, p in dlrm.named_parameters():
-            if not 'emb' in name:
-                v.append(torch.randn(p.size()).to(device))
-                
-        v = normalization(v)  # normalize the vector
-        eigenvalue = None
-        for i in range(100):
-            v = orthnormal(v, eigenvectors)
-            dlrm.zero_grad()
-            
-            Hv = hessian_vector_product(gradsH, params, v)
-            tmp_eigenvalue = group_product(Hv, v).cpu().item()
+        dlrm.zero_grad()
+        Hv = torch.autograd.grad(gradsH,
+                                 params,
+                                 grad_outputs=v,
+                                 only_inputs=True,
+                                 retain_graph=False)
+        THv = [
+            THv1 + Hv1 * float(tmp_num_data) + 0.
+            for THv1, Hv1 in zip(THv, Hv)
+        ]
+        num_data += float(tmp_num_data)
 
-            v = normalization(Hv)
+    THv = [THv1 / float(num_data) for THv1 in THv]
+    eigenvalue = group_product(THv, v).cpu().item()
+    return eigenvalue, THv
 
-            if eigenvalue == None:
-                eigenvalue = tmp_eigenvalue
+def hessian_eigen(
+    dlrm, xloader, network, loss_fn_wrap, train_mode=False, num_batch=5, use_gpu=True, ndevices=1):
+    device = torch.cuda.current_device()
+    #network.eval()
+    ######
+    eigenvectors = []
+    eigenvalues = []
+
+    params, gradsH = get_params_grad(dlrm)
+    v = [torch.randn(p.size()).to(device) for p in params]  
+    v = normalization(v)  # normalize the vector
+    for i in range(100):
+        v = orthnormal(v, eigenvectors)
+        dlrm.zero_grad()
+        
+        tmp_eigenvalue, Hv = dataloader_hv_product(v)
+
+        v = normalization(Hv)
+
+        if eigenvalue == None:
+            eigenvalue = tmp_eigenvalue
+        else:
+            if abs(eigenvalue - tmp_eigenvalue) / (abs(eigenvalue) +
+                                                   1e-6) < 1e-3:
+                break
             else:
-                if abs(eigenvalue - tmp_eigenvalue) / (abs(eigenvalue) +
-                                                       1e-6) < 1e-3:
-                    break
-                else:
-                    eigenvalue = tmp_eigenvalue
-        eigenvalues.append(eigenvalue)
-        eigenvectors.append(v)
-        computed_dim += 1
+                eigenvalue = tmp_eigenvalue
+    eigenvalues.append(eigenvalue)
+    eigenvectors.append(v)
     print(eigenvalues)
     return eigenvalues, eigenvectors
 
-def hessian_trace(
-    dlrm, xloader, network, loss_fn_wrap, train_mode=False, num_batch=5, use_gpu=True, ndevices=1,
-    beta=0.1, 
-    max_search_times=20,
-    iteration_times=15, 
-    sigma_min=0., 
-    sigma_max=5., 
-    eps=1e-3):
+def hessian_eigen(
+    dlrm, xloader, network, loss_fn_wrap, train_mode=False, num_batch=5, use_gpu=True, ndevices=1):
     device = torch.cuda.current_device()
     #network.eval()
     ######
-    grads = []
-    for i, inputBatch in enumerate(xloader):
-        if num_batch > 0 and i >= num_batch: break
-        X, lS_o, lS_i, T, W, CBPP = unpack_batch(inputBatch)
-        Z = network(
-            X,
-            lS_o,
-            lS_i,
-            use_gpu,
-            device,
-            ndevices=ndevices,
-        )
-        E = loss_fn_wrap(Z, T, use_gpu, device)
-        E.backward(create_graph=True)
 
-        eigenvalues = []
-        eigenvectors = []
+    trace_vhv = []
+    trace = 0.
 
-        computed_dim = 0
-
-        params, gradsH = get_params_grad(dlrm)
-        trace_vhv = []
-        trace = 0
-        
-
-        for i in range(100):
-            dlrm.zero_grad()
-            #params, gradsH = get_params_grad(dlrm)
-            v = [
-                torch.randint_like(p, high=2, device=device)
+    params, gradsH = get_params_grad(dlrm)
+   
+    for i in range(100):
+        dlrm.zero_grad()
+        v = [
+            torch.randint_like(p, high=2, device=device)
                 for p in params
-            ]
+        ]  
+        for v_i in v:
+            v_i[v_i == 0] = -1
 
-            # generate Rademacher random variables
-            for v_i in v:
-                v_i[v_i == 0] = -1
-            
-            Hv = hessian_vector_product(gradsH, params, v)
-            trace_vhv.append(group_product(Hv, v).cpu().item())
+        tmp_eigenvalue, Hv = dataloader_hv_product(v)
 
-            if abs(np.mean(trace_vhv) - trace) / (trace + 1e-6) < 1e-3:
-                return trace_vhv
-            else:
-                trace = np.mean(trace_vhv)
-
-    return trace
+        trace_vhv.append(group_product(Hv, v).cpu().item())
+        if abs(np.mean(trace_vhv) - trace) / (trace + 1e-6) < 1e-3:
+            return trace_vhv
+        else:
+            trace = np.mean(trace_vhv)
+    
+    return trace_vhv
 
 
 def hessian_eigen_input(
@@ -233,7 +212,7 @@ def hessian_eigen_input(
     ######
     grads = []
     for i, inputBatch in enumerate(xloader):
-        if num_batch > 0 and i >= num_batch: break
+        if i >= 1: break
         X, lS_o, lS_i, T, W, CBPP = unpack_batch(inputBatch)
         X.requires_grad=True
         Z = network(
@@ -296,7 +275,7 @@ def hessian_trace_input(
     ######
     grads = []
     for i, inputBatch in enumerate(xloader):
-        if num_batch > 0 and i >= num_batch: break
+        if i >= 1: break
         X, lS_o, lS_i, T, W, CBPP = unpack_batch(inputBatch)
         X.requires_grad = True
         Z = network(
