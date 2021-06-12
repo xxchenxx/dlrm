@@ -1709,7 +1709,7 @@ def run():
                         writer.add_scalar(f"Train/LR", lr, log_iter)
                         if "Train/LR" not in log_data:
                             log_data["Train/LR"] = []
-                        log_data["Train/LR"].append(ntk)
+                        log_data["Train/LR"].append(lr)
 
                         from metrics.pac import eval_pac_input, eval_pac_weight
                         epi = eval_pac_input(dlrm, train_ld, dlrm_wrap, loss_fn_wrap, False, 5, use_gpu=use_gpu, ndevices=ndevices)
