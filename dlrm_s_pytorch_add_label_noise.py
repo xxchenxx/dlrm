@@ -322,8 +322,7 @@ class DLRM_Net(nn.Module):
         md_flag=False,
         md_threshold=200,
         weighted_pooling=None,
-        loss_function="bce",
-        input_noise=0.1
+        loss_function="bce"
     ):
         super(DLRM_Net, self).__init__()
 
@@ -336,7 +335,6 @@ class DLRM_Net(nn.Module):
         ):
 
             # save arguments
-            self.input_noise = input_noise
             self.ndevices = ndevices
             self.output_d = 0
             self.parallel_model_batch_size = -1
@@ -530,8 +528,6 @@ class DLRM_Net(nn.Module):
 
     def forward(self, dense_x, lS_o, lS_i):
         
-        dense_x += torch.randn(dense_x.shape) * self.input_noise
-
         if ext_dist.my_size > 1:
             # multi-node multi-device run
             return self.distributed_forward(dense_x, lS_o, lS_i)
@@ -1048,7 +1044,7 @@ def run():
     parser.add_argument("--lr-decay-start-step", type=int, default=0)
     parser.add_argument("--lr-num-decay-steps", type=int, default=0)
 
-    parser.add_argument("--input-noise", type=float, default=0.1)
+    parser.add_argument("--label-noise", type=float, default=0.1)
 
 
     global args
@@ -1311,8 +1307,7 @@ def run():
         md_flag=args.md_flag,
         md_threshold=args.md_threshold,
         weighted_pooling=args.weighted_pooling,
-        loss_function=args.loss_function,
-        input_noise=args.input_noise
+        loss_function=args.loss_function
     )
 
     # test prints
@@ -1598,6 +1593,8 @@ def run():
                         W = W[ext_dist.get_my_slice(mbs)]
 
                     # loss
+                    print(T)
+                    assert False
                     E = loss_fn_wrap(Z, T, use_gpu, device)
 
                     # compute loss and accuracy
