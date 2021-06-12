@@ -1634,7 +1634,7 @@ def run():
                     should_print = (
                         (j + 1) % args.print_freq == 0) or (
                         j + 1 == nbatches
-                    ) or (((j + 1) < 1000 and j % 5 == 0))
+                    ) or (((j + 1) < 1000 and j % 10 == 0))
 
                     should_test = (
                         
