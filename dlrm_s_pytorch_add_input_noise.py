@@ -139,8 +139,6 @@ def dlrm_wrap(X, lS_o, lS_i, use_gpu, device, ndevices=1):
 
 
 def loss_fn_wrap(Z, T, use_gpu, device):
-    print(T)
-    assert False
     with record_function("DLRM loss compute"):
         if args.loss_function == "mse" or args.loss_function == "bce":
             return dlrm.loss_fn(Z, T.to(device))
