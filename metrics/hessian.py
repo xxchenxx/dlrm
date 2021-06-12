@@ -101,7 +101,7 @@ from dlrm_s_pytorch import unpack_batch
 def dataloader_hv_product(dlrm, xloader, network, loss_fn_wrap, v, params, num_batch=50,use_gpu=True, ndevices=1):
     num_data = 0  # count the number of datum points in the dataloader
     device = torch.cuda.current_device()
-    THv = [torch.zeros(p.size()) for p in params
+    THv = [torch.zeros(p.size()).to(device) for p in params
           ]  # accumulate result
     for i, inputBatch in enumerate(xloader):
         if num_batch > 0 and i >= num_batch: break
