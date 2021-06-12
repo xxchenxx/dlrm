@@ -110,29 +110,29 @@ def eval_pac_weight(
                         else:
                             perturb_weight[key] = original_weight[key]
                             
-            dlrm.load_state_dict(perturb_weight)
-            Z = network(
-                X,
-                lS_o,
-                lS_i,
-                use_gpu,
-                device,
-                ndevices=ndevices,
-            )
-            E = loss_fn_wrap(Z, T, use_gpu, device)
-            perturb_loss = E.detach().cpu().numpy()
-            loss_list.append(perturb_loss)  
+                dlrm.load_state_dict(perturb_weight)
+                Z = network(
+                    X,
+                    lS_o,
+                    lS_i,
+                    use_gpu,
+                    device,
+                    ndevices=ndevices,
+                )
+                E = loss_fn_wrap(Z, T, use_gpu, device)
+                perturb_loss = E.detach().cpu().numpy()
+                loss_list.append(perturb_loss)  
 
-        loss_mean = np.mean(np.array(loss_list))
-        print('current-sigma = {}, tolerent loss = {}, current loss = {}'.format(sigma_new, max_loss, loss_mean))
-        #compare with original_loss 
-        if loss_mean <= max_loss and (sigma_max - sigma_min) < eps:
-            return sigma_new
-        else:
-            if loss_mean > max_loss:
-                sigma_max = sigma_new
+            loss_mean = np.mean(np.array(loss_list))
+            print('current-sigma = {}, tolerent loss = {}, current loss = {}'.format(sigma_new, max_loss, loss_mean))
+            #compare with original_loss 
+            if loss_mean <= max_loss and (sigma_max - sigma_min) < eps:
+                return sigma_new
             else:
-                sigma_min = sigma_new
+                if loss_mean > max_loss:
+                    sigma_max = sigma_new
+                else:
+                    sigma_min = sigma_new
 
     dlrm.load_state_dict(original_weight)
 
@@ -194,16 +194,16 @@ def eval_pac_input(
                 perturb_loss = evaluate_function_noise(xloader, dlrm, network, sigma_new, loss_fn_wrap, use_gpu=True, ndevices=1)
                 loss_list.append(perturb_loss)  
 
-        loss_mean = np.mean(np.array(loss_list))
-        print('current-sigma = {}, tolerent loss = {}, current loss = {}'.format(sigma_new, max_loss, loss_mean))
-        #compare with original_loss 
-        if loss_mean <= max_loss and (sigma_max - sigma_min) < eps:
-            return sigma_new
-        else:
-            if loss_mean > max_loss:
-                sigma_max = sigma_new
+            loss_mean = np.mean(np.array(loss_list))
+            print('current-sigma = {}, tolerent loss = {}, current loss = {}'.format(sigma_new, max_loss, loss_mean))
+            #compare with original_loss 
+            if loss_mean <= max_loss and (sigma_max - sigma_min) < eps:
+                return sigma_new
             else:
-                sigma_min = sigma_new
+                if loss_mean > max_loss:
+                    sigma_max = sigma_new
+                else:
+                    sigma_min = sigma_new
 
     return 1 / sigma_new**2
 
