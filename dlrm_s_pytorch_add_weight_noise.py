@@ -532,7 +532,7 @@ class DLRM_Net(nn.Module):
         
         for name, p in self.named_parameters():
             if 'emb' not in name:
-                p.data.add_(torch.randn(p.data.shape) * self.weight_noise)
+                p.data.add_(torch.randn(p.data.shape).to(p.dat.device) * self.weight_noise)
 
         if ext_dist.my_size > 1:
             # multi-node multi-device run
