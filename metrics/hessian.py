@@ -188,7 +188,7 @@ def hessian_trace(
         for v_i in v:
             v_i[v_i == 0] = -1
 
-        tmp_eigenvalue, Hv = dataloader_hv_product(v)
+        tmp_eigenvalue, Hv = dataloader_hv_product(dlrm, xloader, network, loss_fn_wrap, v, params, use_gpu=use_gpu, ndevices=ndevices)
 
         trace_vhv.append(group_product(Hv, v).cpu().item())
         if abs(np.mean(trace_vhv) - trace) / (trace + 1e-6) < 1e-3:
