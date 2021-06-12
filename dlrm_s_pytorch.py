@@ -1683,7 +1683,11 @@ def run():
                         from metrics.linear_region import linear_region
                         from metrics.ortho import cond_weight, cond_features
                         from metrics.hessian import hessian_eigen, hessian_eigen_input, hessian_trace, hessian_trace_input
-                        ntks, names = get_ntk_n(dlrm, train_ld, dlrm_wrap, False, num_batch=5, use_gpu=use_gpu, ndevices=ndevices)
+                        try:
+                            ntks, names = get_ntk_n(dlrm, train_ld, dlrm_wrap, False, num_batch=5, use_gpu=use_gpu, ndevices=ndevices)
+                        except:
+                            ntks = []
+                            names = []
                         for ntk, name in zip(ntks, names):
                             writer.add_scalar(f"Train/ntk_{name}", ntk, log_iter)
                             if f"Train/ntk_{name}" not in log_data:
