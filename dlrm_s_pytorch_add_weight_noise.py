@@ -1313,7 +1313,8 @@ def run():
         md_flag=args.md_flag,
         md_threshold=args.md_threshold,
         weighted_pooling=args.weighted_pooling,
-        loss_function=args.loss_function
+        loss_function=args.loss_function,
+        weight_noise=args.weight_noise
     )
 
     # test prints

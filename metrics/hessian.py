@@ -143,7 +143,7 @@ def hessian_eigen(
     ######
     eigenvectors = []
     eigenvalues = []
-
+    eigenvalue = None
     params, gradsH = get_params_grad(dlrm)
     v = [torch.randn(p.size()).to(device) for p in params]  
     v = normalization(v)  # normalize the vector
