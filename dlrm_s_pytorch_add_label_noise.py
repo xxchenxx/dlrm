@@ -1595,7 +1595,7 @@ def run():
                     # loss
                     #print(T)
                     index = torch.from_numpy(np.random.permutation(T.shape[0])[:int(args.label_noise * T.shape[0])])
-                    T[index] = (1 - T[index]).astype(T.dtype)
+                    T[index] = (1 - T[index])
                     E = loss_fn_wrap(Z, T, use_gpu, device)
 
                     # compute loss and accuracy
