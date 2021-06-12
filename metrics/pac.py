@@ -39,7 +39,6 @@ def evaluate_function_noise(xloader, dlrm, network, noise, loss_fn_wrap, use_gpu
         )
         E = loss_fn_wrap(Z, T, use_gpu, device)
         sum_E += E.detach().cpu().numpy()
-        break
 
     return sum_E / num_batch
 @torch.no_grad()
@@ -64,7 +63,6 @@ def evaluate_function(xloader, dlrm, network, loss_fn_wrap, use_gpu=True, ndevic
         )
         E = loss_fn_wrap(Z, T, use_gpu, device)
         sum_E += E.detach().cpu().numpy()
-        break
 
     return sum_E / num_batch
 
