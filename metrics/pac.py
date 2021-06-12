@@ -26,7 +26,7 @@ def evaluate_function_noise(xloader, dlrm, network, noise, loss_fn_wrap, use_gpu
         if num_batch > 0 and i >= num_batch: break
         X, lS_o, lS_i, T, W, CBPP = unpack_batch(inputBatch)
         gaussian_noise = noise * torch.randn_like(X)
-        new_X = (X + gaussian_noise).clamp(0, 1)
+        #new_X = (X + gaussian_noise).clamp(0, 1)
 
         # compute output
         Z = network(
@@ -151,7 +151,7 @@ def eval_pac_input(
                 sigma_max = sigma_new
             else:
                 sigma_min = sigma_new
-
+    dlrm.load_state_dict(original_weight)
     return 1 / sigma_new**2
 
 
