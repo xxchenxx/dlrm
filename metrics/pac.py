@@ -41,6 +41,7 @@ def evaluate_function_noise(xloader, dlrm, network, noise, loss_fn_wrap, use_gpu
         sum_E += E.detach().cpu().numpy()
 
     return sum_E / num_batch
+
 @torch.no_grad()
 def evaluate_function(xloader, dlrm, network, loss_fn_wrap, use_gpu=True, ndevices=1):
     #eval function for weight perturbation
@@ -138,7 +139,7 @@ def eval_pac_input(
     
         loss_list = []
         for step in range(iteration_times):
-            perturb_loss = evaluate_function_noise(xloader, dlrm, network, sigma_new, loss_fn_wrap, use_gpu=True, ndevices=1)
+            perturb_loss = evaluate_function_noise(xloader, dlrm, network, sigma_new, loss_fn_wrap, use_gpu=use_gpu, ndevices=ndevices)
             loss_list.append(perturb_loss)  
 
         loss_mean = np.mean(np.array(loss_list))
