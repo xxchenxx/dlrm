@@ -1711,6 +1711,7 @@ def run():
                             log_data["Train/LR"] = []
                         log_data["Train/LR"].append(lr)
 
+                        '''
                         from metrics.pac import eval_pac_input, eval_pac_weight
                         epi = eval_pac_input(dlrm, train_ld, dlrm_wrap, loss_fn_wrap, False, 5, use_gpu=use_gpu, ndevices=ndevices)
                         epw = eval_pac_weight(dlrm, train_ld, dlrm_wrap, loss_fn_wrap, False, 5, use_gpu=use_gpu, ndevices=ndevices)
@@ -1724,6 +1725,7 @@ def run():
                         if "Train/PAC Weight" not in log_data:
                             log_data["Train/PAC Weight"] = []
                         log_data["Train/PAC Weight"].append(epw)
+                        '''
 
                         he = hessian_eigen(dlrm, train_ld, dlrm_wrap, loss_fn_wrap, False, 5, use_gpu=use_gpu, ndevices=ndevices)[0][0]
                         writer.add_scalar(f"Train/Hessian Eigen", he, log_iter)
