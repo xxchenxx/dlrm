@@ -151,7 +151,7 @@ def hessian_eigen(
         v = orthnormal(v, eigenvectors)
         dlrm.zero_grad()
         
-        tmp_eigenvalue, Hv = dataloader_hv_product(v)
+        tmp_eigenvalue, Hv = dataloader_hv_product(dlrm, xloader, network, loss_fn_wrap, v, params, use_gpu=use_gpu, ndevices=ndevices)
 
         v = normalization(Hv)
 
@@ -168,7 +168,7 @@ def hessian_eigen(
     print(eigenvalues)
     return eigenvalues, eigenvectors
 
-def hessian_eigen(
+def hessian_trace(
     dlrm, xloader, network, loss_fn_wrap, train_mode=False, num_batch=5, use_gpu=True, ndevices=1):
     device = torch.cuda.current_device()
     #network.eval()
