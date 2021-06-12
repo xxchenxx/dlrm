@@ -530,7 +530,7 @@ class DLRM_Net(nn.Module):
 
     def forward(self, dense_x, lS_o, lS_i):
         
-        dense_x += torch.randn(dense_x.shape) * self.input_noise
+        dense_x += torch.randn(dense_x.shape).to(dense_x.device) * self.input_noise
 
         if ext_dist.my_size > 1:
             # multi-node multi-device run
