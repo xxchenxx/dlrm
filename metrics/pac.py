@@ -117,7 +117,7 @@ def eval_pac_weight(
             else:
                 sigma_min = sigma_new
 
-    dlrm.load_state_dict(original_weight)s
+    dlrm.load_state_dict(original_weight)
     return 1 / sigma_new**2
 
 def eval_pac_input(
