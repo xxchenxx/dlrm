@@ -1050,6 +1050,9 @@ def run():
     parser.add_argument("--lr-decay-start-step", type=int, default=0)
     parser.add_argument("--lr-num-decay-steps", type=int, default=0)
 
+    parser.add_argument("--weight-noise", type=float, default=0.1)
+
+
     global args
     global nbatches
     global nbatches_test
