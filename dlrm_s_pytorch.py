@@ -1640,7 +1640,7 @@ def run():
                         
                         (args.test_freq > 0)
                         and (args.data_generation in ["dataset", "random"])
-                        and ((((j + 1) % args.test_freq == 0) or (j + 1 == nbatches)) or ((j + 1) < 1000 and j % 5 == 0) )
+                        and ((((j + 1) % args.test_freq == 0) or (j + 1 == nbatches)) or ((j + 1) < 1000 and j % 10 == 0) )
                     )
 
                     # print time, loss and accuracy
@@ -1733,21 +1733,26 @@ def run():
                         if "Train/Hessian Trace Input" not in log_data:
                             log_data["Train/Hessian Trace Input"] = []
                         log_data["Train/Hessian Trace Input"].append(hti)
-                    
-                        cw = cond_weight(dlrm, train_ld, dlrm_wrap, False, 5, use_gpu=use_gpu, ndevices=ndevices)
+
+                        try:
+                            cw = cond_weight(dlrm, train_ld, dlrm_wrap, False, 5, use_gpu=use_gpu, ndevices=ndevices)
+                        except:
+                            cw = {}
+                        
                         for name in cw:
                             writer.add_scalar(f"Train/Cond. Weight {name}", cw[name], log_iter)
                         if "Train/Cond. Weight" not in log_data:
                             log_data["Train/Cond. Weight"] = []
                         log_data["Train/Cond. Weight"].append(cw)
 
-                        cf = cond_features(dlrm, train_ld, dlrm_wrap, False, 5, use_gpu=use_gpu, ndevices=ndevices)
-                        print(cf)
+                        try:
+                            cf = cond_features(dlrm, train_ld, dlrm_wrap, False, 5, use_gpu=use_gpu, ndevices=ndevices)
+                        except:
+                            cf = 0
                         writer.add_scalar(f"Train/Cond. Features", cf, log_iter)
                         if "Train/Cond. Features" not in log_data:
                             log_data["Train/Cond. Features"] = []
                         log_data["Train/Cond. Features"].append(cf)
-                        
                         ### measurement ends
                         
 
